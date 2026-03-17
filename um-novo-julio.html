@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Um Novo Julio</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080808;
+    --panel: #101010;
+    --panel2: #141414;
+    --border: #222;
+    --red: #e63232;
+    --orange: #e67c32;
+    --green: #32e67c;
+    --text: #d0d0d0;
+    --muted: #444;
+    --muted2: #333;
+    --white: #f0f0f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* HERO */
+  .hero {
+    background: #0a0a0a;
+    border-bottom: 1px solid var(--border);
+    padding: 48px 24px 36px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 39px, #1a1a1a 39px, #1a1a1a 40px),
+                repeating-linear-gradient(90deg, transparent, transparent 39px, #1a1a1a 39px, #1a1a1a 40px);
+    opacity: 0.3;
+  }
+  .hero-inner { position: relative; z-index: 1; }
+  .hero h1 {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(42px, 12vw, 100px);
+    font-weight: 700;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: var(--white);
+    line-height: 1;
+  }
+  .hero h1 span { color: var(--red); }
+  .hero-sub {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    margin-top: 10px;
+    text-transform: uppercase;
+  }
+
+  /* GLOBAL PROGRESS */
+  .global-bar {
+    max-width: 800px;
+    margin: 28px auto;
+    padding: 0 20px;
+  }
+  .gbar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    border-radius: 4px;
+  }
+  .gbar-label { font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
+  .gbar-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .gbar-fill { height: 100%; background: var(--red); border-radius: 2px; transition: width 0.4s; width: 0%; }
+  .gbar-count { font-size: 11px; color: var(--red); white-space: nowrap; }
+
+  /* MONTHS NAV */
+  .months-nav {
+    max-width: 800px;
+    margin: 0 auto 30px;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .mnav-btn {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .mnav-btn:hover, .mnav-btn.active { color: var(--red); border-color: var(--red); }
+
+  /* MONTH SECTION */
+  .month-section {
+    max-width: 800px;
+    margin: 0 auto 50px;
+    padding: 0 20px;
+  }
+  .month-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .month-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 5px;
+    color: var(--white);
+    text-transform: uppercase;
+  }
+  .month-track { flex: 1; height: 2px; background: var(--border); border-radius: 1px; overflow: hidden; }
+  .month-fill { height: 100%; background: var(--red); transition: width 0.4s; width: 0%; }
+  .month-pct { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+
+  /* DAY CARD */
+  .day-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .day-card:hover { border-color: #2a2a2a; }
+  .day-card.all-done { border-color: #1a3a2a; }
+
+  .day-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .day-dow {
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    min-width: 36px;
+  }
+  .day-num {
+    font-family: 'Oswald', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--white);
+    min-width: 36px;
+  }
+  .day-card.all-done .day-num { color: var(--green); }
+  .day-mini-wrap { flex: 1; display: flex; align-items: center; gap: 10px; }
+  .day-mini-track { flex: 1; height: 2px; background: var(--border); border-radius: 1px; overflow: hidden; }
+  .day-mini-fill { height: 100%; background: var(--red); transition: width 0.3s; width: 0%; }
+  .day-card.all-done .day-mini-fill { background: var(--green); }
+  .day-pct { font-size: 9px; color: var(--muted); min-width: 28px; text-align: right; }
+  .chevron { font-size: 9px; color: var(--muted); transition: transform 0.25s; }
+  .day-card.open .chevron { transform: rotate(180deg); }
+
+  /* TASKS */
+  .tasks-wrap { display: none; border-top: 1px solid var(--border); }
+  .day-card.open .tasks-wrap { display: block; }
+
+  .task-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid #0f0f0f;
+    position: relative;
+  }
+  .task-row:last-child { border-bottom: none; }
+  .task-row:hover { background: rgba(255,255,255,0.02); }
+
+  .tick {
+    width: 15px; height: 15px;
+    border: 1.5px solid var(--muted2);
+    border-radius: 2px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .task-row.done .tick { background: var(--green); border-color: var(--green); }
+  .tick::after {
+    content: '';
+    width: 7px; height: 4px;
+    border-left: 2px solid #000;
+    border-bottom: 2px solid #000;
+    transform: rotate(-45deg) translateY(-1px);
+    display: none;
+  }
+  .task-row.done .tick::after { display: block; }
+
+  .task-time {
+    font-size: 10px;
+    color: var(--red);
+    min-width: 120px;
+    letter-spacing: 1px;
+  }
+  .task-row.done .task-time { color: var(--muted); }
+
+  .task-name {
+    font-size: 12px;
+    color: var(--text);
+    letter-spacing: 0.5px;
+  }
+  .task-row.done .task-name {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+
+  /* SHAME BADGE */
+  .shame-badge {
+    display: none;
+    margin-left: auto;
+    font-size: 9px;
+    color: var(--orange);
+    letter-spacing: 1px;
+    text-align: right;
+    max-width: 160px;
+    line-height: 1.3;
+    font-style: italic;
+  }
+  .task-row.shamed .shame-badge { display: block; }
+  .task-row.shamed .task-name { color: var(--orange); }
+
+  /* MOTIVATIONAL */
+  .motive-bar {
+    background: #0a1a0f;
+    border-top: 1px solid #1a3a2a;
+    padding: 12px 16px;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 1px;
+    font-style: italic;
+    line-height: 1.5;
+    display: none;
+  }
+  .day-card.all-done .motive-bar { display: block; }
+
+  /* WEEKEND */
+  .weekend-note {
+    padding: 14px 16px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    font-style: italic;
+    border-bottom: 1px solid #0f0f0f;
+  }
+  .weekend-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-top: 1px dashed #1a1a1a;
+    color: #555;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 12px 16px;
+    resize: vertical;
+    min-height: 56px;
+    outline: none;
+    letter-spacing: 0.5px;
+  }
+  .weekend-input::placeholder { color: #2a2a2a; }
+  .weekend-input:focus { color: var(--text); border-top-color: var(--muted2); }
+
+  footer {
+    text-align: center;
+    padding-top: 40px;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #222;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>UM NOVO <span>JULIO</span></h1>
+    <div class="hero-sub">18 Mar 2026 → 31 Dez 2026 · Sem desculpa. Sem pausa.</div>
+  </div>
+</div>
+
+<div class="global-bar">
+  <div class="gbar-row">
+    <span class="gbar-label">Total</span>
+    <div class="gbar-track"><div class="gbar-fill" id="gFill"></div></div>
+    <span class="gbar-count" id="gCount">0/0</span>
+  </div>
+</div>
+
+<div class="months-nav" id="monthsNav"></div>
+<div id="planner"></div>
+
+<footer>UM NOVO JULIO · 2026 · FEITO PRA VENCER</footer>
+
+<script>
+const STORE = "novo_julio_v1";
+const PT_DAYS = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+const PT_MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
+const DAILY_TASKS = [
+  { time: "04:20", label: "Acordar" },
+  { time: "05:10 – 07:00", label: "Treino na Academia" },
+  { time: "07:20 – 17:10", label: "Trabalho (Expediente)" },
+  { time: "17:10 – 19:00", label: "Pós-Graduação" },
+  { time: "19:05 – 20:00", label: "Inglês" },
+  { time: "20:00 – 20:30", label: "Six Sigma Yellow Belt" },
+];
+
+const SHAME_MSGS = [
+  "Sério? Deixou pra depois? Clássico.",
+  "Uau. Nem isso você fez.",
+  "Procrastinação nível: campeão mundial.",
+  "Sua preguiça tá batendo recorde hoje.",
+  "Tá esperando o quê? O tempo passar sozinho?",
+  "Impressionante. No mau sentido.",
+  "Isso aí não vai se fazer sozinho, né não?",
+  "Amanhã você faz? Falou isso ontem também.",
+  "Continue assim e 2027 vai ser igualzinho.",
+  "O Julio do futuro tá decepcionado com você.",
+  "Não fez. Simples assim. Que pena.",
+  "Deixou rolar. A vida também vai deixar.",
+  "Sua versão melhor não nasce da preguiça.",
+  "Isso foi um teste. Você reprovou.",
+  "Parabéns. Mais um dia jogado fora.",
+  "Sua preguiça agradece. Você deveria ter vergonha.",
+  "Isso é tudo que você consegue? Sério?",
+  "Nem o mínimo. Impressionante.",
+  "Se esforço fosse dor, você teria levado anestesia.",
+  "Quantas vezes você já disse 'hoje eu faço'?",
+  "O calendário tá vermelho de tanto que você não fez.",
+  "Você tá construindo um currículo de desculpas.",
+  "Sua rotina de procrastinação tá mais consistente que sua rotina de treino.",
+  "Deixa eu adivinhar: 'estava cansado'.",
+  "O fracasso não avisa. Mas você foi avisado.",
+  "Alguém em algum lugar tá fazendo o que você não fez. Pensa nisso.",
+  "Tá esperando inspiração? Ela não vem pra quem fica parado.",
+  "Cada tick que falta é uma promessa quebrada pra você mesmo.",
+  "Você falhou hoje. De novo. Surpreendente.",
+  "Tá bom assim? Tá? Então tudo certo.",
+  "Olha o que você poderia ter feito. Olha o que você fez. Compare.",
+  "Sua versão de ontem também não fez. Que coincidência.",
+  "E aí, como tá o gosto da procrastinação?",
+  "Você tem talento pra enrolar. Que desperdício.",
+  "Mais fácil fazer do que ficar inventando desculpa, mas aqui estamos.",
+  "Esse item te derrotou. Um item. Pense nisso.",
+  "Sua preguiça tá sorrindo pra você agora.",
+  "Isso aqui não era difícil. E mesmo assim você não fez.",
+  "O relógio não para por você, sabia?",
+  "Você prometeu. Você esqueceu. Surpresa nenhuma.",
+  "Mais um prazo que passou. Sua marca registrada.",
+  "A tarefa tá aí te olhando com pena.",
+  "Você perdeu pra si mesmo. Que feito.",
+  "Se enrolar fosse esporte, você seria olímpico.",
+  "Ninguém vai fazer por você. Inclusive você mesmo.",
+  "Você escolheu o sofá. O sofá agradece.",
+  "Tá com saudade do fracasso? Tá indo bem.",
+  "Deixou pra depois. Depois virou nunca. Surpresa.",
+  "Cada item pulado é uma promessa quebrada consigo mesmo.",
+  "Olha que desempenho incrível. De mau mesmo.",
+  "Isso aqui era pra durar meia hora. Você não começou.",
+  "Sua motivação ligou dizendo que desistiu de você.",
+  "Continuando assim, sua rotina vai virar lenda urbana.",
+  "A versão preguiçosa sua tá ganhando hoje por placar.",
+  "Parabéns pela consistência em não fazer nada.",
+  "Você driblou a tarefa. Mas não driblou o tempo.",
+  "Lembrete: amanhã também tem. E você vai enrolar de novo.",
+  "Não fez. Não tem desculpa. Fim.",
+  "A vida não espera. Mas você acha que espera.",
+  "Sabe o que separa você do sucesso? Essa tarefa aqui.",
+  "Impossível? Não era. Só inconveniente pra você.",
+  "Você não falhou por falta de tempo. Falhou por escolha.",
+  "Sua preguiça tá mais consistente que sua rotina. Curioso.",
+  "Interessante como você acha tempo pra tudo, menos pra isso.",
+  "Esse item não mordeu. Você é que não foi.",
+  "Tá esperando virar fácil? Spoiler: não vai.",
+  "Você fez questão de não fazer. Parabéns pela dedicação.",
+  "O relógio virou inimigo hoje. Por culpa sua.",
+  "Ontem você também falou que ia fazer. E hoje? Igual.",
+  "Você virou perito em começar amanhã.",
+  "Sua versão ideal te olha com vergonha nesse exato momento.",
+  "Tarefa simples. Resultado: ignorada. Análise: previsível.",
+  "Você tinha tudo pra fazer. E escolheu não fazer. Artístico.",
+  "Se procrastinar queimasse caloria, você estaria seco.",
+  "Você perdeu pra uma tarefa de meia hora. Deixa eu rir.",
+  "Esse item tá aqui desde cedo te esperando. Você sumiu.",
+  "Disciplina não é dom. É escolha. Você não escolheu hoje.",
+  "Não é impossível. É desconfortável. Diferença enorme.",
+  "Você vai lembrar desse dia quando quiser desculpa em dezembro.",
+  "Enrolou tanto que o dia acabou. Talento raro mesmo.",
+  "Sua preguiça mandou agradecer do fundo do coração.",
+];
+
+const MOTIVATIONAL = [
+  "Fez tudo. Sem enrolação. Isso é o que separa você dos outros.",
+  "Consistência bate talento. Você provou isso hoje.",
+  "Você podia ter parado. Não parou. Essa é a diferença.",
+  "O Julio de dezembro vai lembrar desse dia.",
+  "Isso não é sorte. É disciplina. Sua.",
+  "Dia fechado. Cabeça erguida. Dorme tranquilo.",
+  "Compromisso cumprido. Respeita-se.",
+  "Fez quando não queria. Isso é o verdadeiro nível.",
+  "Treinou, trabalhou, estudou. Isso é vida de verdade.",
+  "Quem planta todos os dias colhe em dezembro.",
+  "Você não esperou motivação. Foi e fez. Respeito total.",
+  "Cada check é um não dado pra sua preguiça.",
+  "O esforço invisível de hoje é o resultado visível de amanhã.",
+  "Quem você era antes não faria isso. Perceba a evolução.",
+  "A disciplina hoje é a liberdade de amanhã.",
+  "Dezembro vai ser diferente por causa de dias como esse.",
+  "Mais um tijolo no alicerce do novo Julio.",
+  "Você disse que ia mudar. Tá mudando. Olha só.",
+  "O processo é tedioso. A transformação é épica.",
+  "Hoje foi seu de verdade. Parabéns, Julio.",
+];
+
+let state = {};
+function loadState() { try { state = JSON.parse(localStorage.getItem(STORE)) || {}; } catch(e) { state = {}; } }
+function saveState() { localStorage.setItem(STORE, JSON.stringify(state)); }
+
+function getDayKey(d) { return d.toISOString().slice(0,10); }
+
+function getShame() { return SHAME_MSGS[Math.floor(Math.random() * SHAME_MSGS.length)]; }
+
+function getMotivational(index) { return MOTIVATIONAL[index % MOTIVATIONAL.length]; }
+
+function isTaskLate(taskIndex, dateKey) {
+  const now = new Date();
+  const todayKey = getDayKey(now);
+  if (dateKey > todayKey) return false;
+  if (dateKey < todayKey) return true;
+  // same day — check if next task time has passed
+  const deadlines = ["04:20","05:10","07:20","17:10","19:05","20:00","23:59"];
+  const nextDeadline = deadlines[taskIndex + 1] || "23:59";
+  const [h, m] = nextDeadline.split(":").map(Number);
+  const deadline = new Date();
+  deadline.setHours(h, m, 0, 0);
+  return now > deadline;
+}
+
+let motivIndex = 0;
+
+function buildPlanner() {
+  const container = document.getElementById('planner');
+  const nav = document.getElementById('monthsNav');
+  const start = new Date(2026, 2, 18); // Mar 18
+  const end = new Date(2026, 11, 31);  // Dec 31
+
+  let currentMonth = -1;
+  let weekGrid = null;
+  let dayIndex = 0;
+
+  let d = new Date(start);
+  while (d <= end) {
+    const month = d.getMonth();
+
+    if (month !== currentMonth) {
+      currentMonth = month;
+
+      const btn = document.createElement('button');
+      btn.className = 'mnav-btn';
+      btn.textContent = PT_MONTHS[month].slice(0,3).toUpperCase();
+      btn.onclick = () => document.getElementById(`month-${month}`).scrollIntoView({ behavior: 'smooth' });
+      nav.appendChild(btn);
+
+      const section = document.createElement('div');
+      section.className = 'month-section';
+      section.id = `month-${month}`;
+
+      section.innerHTML = `
+        <div class="month-header">
+          <div class="month-name">${PT_MONTHS[month]}</div>
+          <div class="month-track"><div class="month-fill" id="mf-${month}"></div></div>
+          <div class="month-pct" id="mp-${month}">0%</div>
+        </div>
+      `;
+
+      weekGrid = document.createElement('div');
+      section.appendChild(weekGrid);
+      container.appendChild(section);
+    }
+
+    const dow = d.getDay();
+    const isWeekend = dow === 0 || dow === 6;
+    const key = getDayKey(d);
+    const dateStr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+
+    const card = document.createElement('div');
+    card.className = 'day-card';
+    card.id = `dc-${key}`;
+
+    const tasksHtml = isWeekend
+      ? `<div class="tasks-wrap" id="tw-${key}">
+           <div class="weekend-note">// FIM DE SEMANA LIVRE</div>
+           <textarea class="weekend-input" placeholder="o que você fez hoje?" id="we-${key}" onchange="saveWeekend('${key}',this.value)">${state[key]?.note||''}</textarea>
+         </div>`
+      : `<div class="tasks-wrap" id="tw-${key}"></div>`;
+
+    card.innerHTML = `
+      <div class="day-head" onclick="toggleDay('${key}')">
+        <div class="day-dow">${PT_DAYS[dow]}</div>
+        <div class="day-num">${dateStr}</div>
+        <div class="day-mini-wrap">
+          <div class="day-mini-track"><div class="day-mini-fill" id="df-${key}"></div></div>
+          <div class="day-pct" id="dp-${key}">0%</div>
+        </div>
+        <div class="chevron">▼</div>
+      </div>
+      ${tasksHtml}
+    `;
+
+    if (!isWeekend) {
+      const tw = card.querySelector(`#tw-${key}`);
+      DAILY_TASKS.forEach((t, i) => {
+        const done = !!state[key]?.tasks?.[i];
+        const late = !done && isTaskLate(i, key);
+        const shameMsg = late ? (state[key]?.shame?.[i] || getShame()) : '';
+        if (late && state[key] && !state[key].shame) state[key].shame = {};
+        if (late && state[key]) state[key].shame = state[key].shame || {};
+        if (late && state[key] && !state[key].shame[i]) { state[key].shame[i] = shameMsg; }
+
+        const row = document.createElement('div');
+        row.className = `task-row${done ? ' done' : ''}${late ? ' shamed' : ''}`;
+        row.id = `tr-${key}-${i}`;
+        row.innerHTML = `
+          <div class="tick"></div>
+          <div class="task-time">${t.time}</div>
+          <div class="task-name">${t.label}</div>
+          <div class="shame-badge">${late ? shameMsg : ''}</div>
+        `;
+        row.onclick = () => toggleTask(key, i);
+        tw.appendChild(row);
+      });
+
+      // motivational
+      const mDiv = document.createElement('div');
+      mDiv.className = 'motive-bar';
+      mDiv.id = `mot-${key}`;
+      mDiv.textContent = '✦ ' + getMotivational(dayIndex);
+      tw.appendChild(mDiv);
+      dayIndex++;
+    }
+
+    weekGrid.appendChild(card);
+    updateDayUI(key, isWeekend);
+
+    d.setDate(d.getDate() + 1);
+  }
+  saveState();
+  updateGlobal();
+}
+
+function toggleDay(key) {
+  const card = document.getElementById(`dc-${key}`);
+  card.classList.toggle('open');
+}
+
+function toggleTask(key, idx) {
+  if (!state[key]) state[key] = { tasks: {}, shame: {} };
+  if (!state[key].tasks) state[key].tasks = {};
+  state[key].tasks[idx] = !state[key].tasks[idx];
+  saveState();
+
+  const row = document.getElementById(`tr-${key}-${idx}`);
+  const done = state[key].tasks[idx];
+  row.classList.toggle('done', done);
+  if (done) row.classList.remove('shamed');
+
+  updateDayUI(key, false);
+  updateMonthUI(parseInt(key.split('-')[1]) - 1);
+  updateGlobal();
+}
+
+function saveWeekend(key, val) {
+  if (!state[key]) state[key] = {};
+  state[key].note = val;
+  saveState();
+}
+
+function updateDayUI(key, isWeekend) {
+  if (isWeekend) return;
+  const total = DAILY_TASKS.length;
+  const done = Object.values(state[key]?.tasks || {}).filter(Boolean).length;
+  const pct = Math.round(done / total * 100);
+  const fill = document.getElementById(`df-${key}`);
+  const pctEl = document.getElementById(`dp-${key}`);
+  const card = document.getElementById(`dc-${key}`);
+  if (fill) fill.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (card) card.classList.toggle('all-done', done >= total - 1);
+}
+
+function updateMonthUI(month) {
+  const rows = document.querySelectorAll(`#month-${month} .task-row`);
+  const done = document.querySelectorAll(`#month-${month} .task-row.done`).length;
+  const total = rows.length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const fill = document.getElementById(`mf-${month}`);
+  const pctEl = document.getElementById(`mp-${month}`);
+  if (fill) fill.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+}
+
+function updateGlobal() {
+  const total = document.querySelectorAll('.task-row').length;
+  const done = document.querySelectorAll('.task-row.done').length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('gFill').style.width = pct + '%';
+  document.getElementById('gCount').textContent = `${done}/${total}`;
+  for (let m = 2; m <= 11; m++) updateMonthUI(m);
+}
+
+loadState();
+buildPlanner();
+
+// Auto-open today
+const todayKey = getDayKey(new Date());
+const todayCard = document.getElementById(`dc-${todayKey}`);
+if (todayCard) {
+  todayCard.classList.add('open');
+  setTimeout(() => todayCard.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+}
+
+// Check every minute for late tasks
+setInterval(() => {
+  const todayKey = getDayKey(new Date());
+  DAILY_TASKS.forEach((_, i) => {
+    const row = document.getElementById(`tr-${todayKey}-${i}`);
+    if (!row || row.classList.contains('done')) return;
+    if (isTaskLate(i, todayKey)) {
+      if (!state[todayKey]) state[todayKey] = { tasks: {}, shame: {} };
+      if (!state[todayKey].shame) state[todayKey].shame = {};
+      if (!state[todayKey].shame[i]) {
+        state[todayKey].shame[i] = getShame();
+        saveState();
+      }
+      row.classList.add('shamed');
+      row.querySelector('.shame-badge').textContent = state[todayKey].shame[i];
+    }
+  });
+}, 60000);
+</script>
+</body>
+</html>
